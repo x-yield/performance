@@ -15,10 +15,12 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"strings"
 	"strconv"
 	"time"
+
 	"github.com/spf13/afero"
 	"github.com/yandex/pandora/cli"
 	"github.com/yandex/pandora/components/phttp/import"
@@ -26,9 +28,9 @@ import (
 	"github.com/yandex/pandora/core/aggregator/netsample"
 	"github.com/yandex/pandora/core/import"
 	"github.com/yandex/pandora/core/register"
-	pb "path/to/protofile"
 	"google.golang.org/grpc"
-	"log"
+
+	pb "path/to/protofile"
 )
 
 type Ammo struct {
@@ -44,7 +46,8 @@ type Sample struct {
 }
 
 type GunConfig struct {
-	Target string `validate:"required"` // Configuration will fail, without target defined
+    // Configuration will fail, without target defined
+	Target string `validate:"required"`
 }
 
 type Gun struct {
@@ -76,7 +79,8 @@ func (g *Gun) Bind(aggr core.Aggregator, deps core.GunDeps) error {
 }
 
 func (g *Gun) Shoot(ammo core.Ammo) {
-	customAmmo := ammo.(*Ammo) // Shoot will panic on unexpected ammo type. Panic cancels shooting.
+    // Shoot will panic on unexpected ammo type. Panic cancels shooting.
+	customAmmo := ammo.(*Ammo)
 	g.shoot(customAmmo)
 }
 
@@ -126,7 +130,7 @@ func main() {
 	// Standard imports.
 	fs := afero.NewOsFs()
 	coreimport.Import(fs)
-	// May not be imported, if you don't need http guns and etc.
+	// May not be imported, if you dont need http guns and etc.
 	phttp.Import(fs)
 
 	// Custom imports. Integrate your custom types into configuration system.
