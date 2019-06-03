@@ -1,0 +1,10 @@
+# Yandex.tank w/ tankAPI
+# And TankApi
+# VERSION 0.0.1
+
+FROM {{ image of tank in your registry }}
+LABEL Description="yandex tank w/ tankapi"
+
+RUN pip install https://api.github.com/repos/load-tools/yandex-tank-api/tarball/dev
+
+ENTRYPOINT ["/usr/bin/yandex-tank-api-server"]
