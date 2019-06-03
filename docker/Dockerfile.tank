@@ -1,0 +1,56 @@
+# Yandex.tank w/ pandora
+#
+# VERSION 0.0.1
+
+FROM golang:alpine
+LABEL Description="Yandex.Tank from github w/ pandora"
+
+ARG YANDEX_TANK_REF=develop
+
+ENV PACKAGES="\
+    bash \
+    git \
+    vim \
+    curl \
+    less \
+    wget \
+    sudo     \
+    busybox-extras \
+    iproute2 \
+    atop     \
+    openssh-client \
+    python \
+    alpine-sdk  \
+    util-linux \
+"
+
+# get some common tools
+RUN apk update && \
+    apk add $PACKAGES
+
+# set up golang
+RUN export PATH=$GOPATH/bin > /etc/environment
+ENV GO111MODULE on
+
+# pip installation
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+RUN python get-pip.py
+
+RUN git clone https://github.com/yandex/pandora.git && \
+    cd pandora && \
+    make deps && \
+    go install
+
+# install lastest release of yandex-tank
+ENV BUILD_DEPS="python-dev libc-dev gfortran openssl-dev libffi-dev linux-headers musl-dev make"
+RUN apk add --virtual .build-deps ${BUILD_DEPS} && \
+    pip install --upgrade setuptools && \
+    pip install numpy && \
+    pip install https://api.github.com/repos/yandex/yandex-tank/tarball/${YANDEX_TANK_REF} && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /var/tmp/* /root/.cache/*
+
+# =======================================
+
+VOLUME ["/var/loadtest"]
+WORKDIR /var/loadtest
+ENTRYPOINT ["/usr/bin/yandex-tank"]
